@@ -1,4 +1,4 @@
-// Configuration Firebase (compat version pour GitHub Pages)
+// firebase-config.js
 var firebaseConfig = {
   apiKey: "AIzaSyBIrVOglgZALaaK6IwPwqHMiynBGD4Z3JM",
   authDomain: "mohammedi-cabinet.firebaseapp.com",
