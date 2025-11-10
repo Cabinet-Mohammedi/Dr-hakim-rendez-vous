@@ -1,5 +1,4 @@
 document.addEventListener("DOMContentLoaded", () => {
-  // === Sélection des éléments ===
   const btnLogin = document.getElementById("btnLogin");
   const mdpInput = document.getElementById("mdpMedecin");
   const loginCard = document.getElementById("loginCard");
@@ -38,21 +37,12 @@ document.addEventListener("DOMContentLoaded", () => {
   btnAdd.addEventListener("click", () => {
     const nom = nomAdd.value.trim();
     const tel = telAdd.value.trim();
-
-    if (nom === "" || tel === "") {
-      alert("Veuillez remplir tous les champs !");
-      return;
-    }
+    if (!nom || !tel) { alert("Veuillez remplir tous les champs !"); return; }
 
     const ref = db.ref("rendezvous");
     ref.once("value").then(snapshot => {
       const numero = snapshot.numChildren() + 1;
-      ref.push({
-        nom,
-        tel,
-        numero,
-        date: new Date().toLocaleDateString("fr-FR")
-      });
+      ref.push({ nom, tel, numero, date: new Date().toLocaleDateString("fr-FR") });
       nomAdd.value = "";
       telAdd.value = "";
     });
@@ -66,16 +56,13 @@ document.addEventListener("DOMContentLoaded", () => {
       snapshot.forEach(child => {
         const data = child.val();
         const tr = document.createElement("tr");
-
         tr.innerHTML = `
           <td>${data.numero}</td>
           <td>${data.nom}</td>
           <td>${data.tel}</td>
           <td>${data.date}</td>
           <td>
-            <button class="btn-delete" data-id="${child.key}">
-              <i class="fas fa-trash"></i>
-            </button>
+            <button class="btn-delete" data-id="${child.key}"><i class="fas fa-trash"></i></button>
           </td>
         `;
         rdvTable.appendChild(tr);
