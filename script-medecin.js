@@ -14,9 +14,20 @@ const rdvTable = document.getElementById("rdvTable").querySelector("tbody");
 const app = firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
+// === Vérifier si mot de passe déjà sauvegardé ===
+window.addEventListener("load", () => {
+  const savedPass = localStorage.getItem("mdpMedecin");
+  if (savedPass === "docteur123") {
+    loginCard.style.display = "none";
+    medContent.style.display = "block";
+    afficherRendezVous();
+  }
+});
+
 // === Connexion médecin ===
 btnLogin.addEventListener("click", () => {
   if (mdpInput.value.trim() === "docteur123") {
+    localStorage.setItem("mdpMedecin", "docteur123");
     loginCard.style.display = "none";
     medContent.style.display = "block";
     afficherRendezVous();
@@ -54,7 +65,6 @@ function afficherRendezVous() {
   const ref = db.ref("rendezvous");
   ref.on("value", snapshot => {
     rdvTable.innerHTML = "";
-    let i = 1;
     snapshot.forEach(child => {
       const data = child.val();
       const tr = document.createElement("tr");
@@ -71,7 +81,6 @@ function afficherRendezVous() {
         </td>
       `;
       rdvTable.appendChild(tr);
-      i++;
     });
 
     // === Bouton supprimer ===
