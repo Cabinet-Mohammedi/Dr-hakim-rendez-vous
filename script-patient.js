@@ -9,12 +9,21 @@ document.addEventListener("DOMContentLoaded", () => {
   btnReserve.addEventListener("click", () => {
     const nom = nomInput.value.trim();
     const tel = telInput.value.trim();
-    if (!nom || !tel) { alert("Veuillez remplir tous les champs !"); return; }
+
+    if (!nom || !tel) {
+      alert("Veuillez remplir tous les champs !");
+      return;
+    }
 
     const ref = db.ref("rendezvous");
     ref.once("value").then(snapshot => {
       const numero = snapshot.numChildren() + 1;
-      ref.push({ nom, tel, numero, date: new Date().toLocaleDateString("fr-FR") });
+      ref.push({
+        nom,
+        tel,
+        numero,
+        date: new Date().toLocaleDateString("fr-FR")
+      });
       alert(`Rendez-vous réservé ! Votre numéro: ${numero}`);
       nomInput.value = "";
       telInput.value = "";
