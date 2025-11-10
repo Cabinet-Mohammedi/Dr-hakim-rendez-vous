@@ -1,44 +1,22 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
-import { getDatabase, ref, push, onValue, remove, update } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-database.js";
-import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-analytics.js";
-
-// إعداد Firebase
-const firebaseConfig = {
-  apiKey: "AIzaSyBIrVOglgZALaaK6IwPwqHMiynBGD4Z3JM",
-  authDomain: "mohammedi-cabinet.firebaseapp.com",
-  databaseURL: "https://mohammedi-cabinet-default-rtdb.firebaseio.com",
-  projectId: "mohammedi-cabinet",
-  storageBucket: "mohammedi-cabinet.firebasestorage.app",
-  messagingSenderId: "666383356275",
-  appId: "1:666383356275:web:09de11f9dfa2451d843506",
-  measurementId: "G-VT06BFXNP1"
-};
-
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
-getAnalytics(app);
-
-// -------------------------------
-// عناصر الصفحة
-// -------------------------------
-const loginCard = document.getElementById("loginCard");
-const medContent = document.getElementById("medContent");
+// === Sélection des éléments ===
 const btnLogin = document.getElementById("btnLogin");
 const mdpInput = document.getElementById("mdpMedecin");
+const loginCard = document.getElementById("loginCard");
+const medContent = document.getElementById("medContent");
 const loginError = document.getElementById("loginError");
-const btnAdd = document.getElementById("btnAdd");
+
 const nomAdd = document.getElementById("nomAdd");
 const telAdd = document.getElementById("telAdd");
-const rdvTableBody = document.querySelector("#rdvTable tbody");
-const compteurBox = document.createElement("div");
-compteurBox.className = "card compteur";
-document.querySelector("main").prepend(compteurBox);
+const btnAdd = document.getElementById("btnAdd");
+const rdvTable = document.getElementById("rdvTable").querySelector("tbody");
 
-// -------------------------------
-// الدخول بكلمة المرور
-// -------------------------------
+// === Initialisation Firebase ===
+const app = firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+// === Connexion médecin ===
 btnLogin.addEventListener("click", () => {
-  if (mdpInput.value === "docteur123") {
+  if (mdpInput.value.trim() === "docteur123") {
     loginCard.style.display = "none";
     medContent.style.display = "block";
     afficherRendezVous();
@@ -47,76 +25,61 @@ btnLogin.addEventListener("click", () => {
   }
 });
 
-// -------------------------------
-// إضافة موعد جديد
-// -------------------------------
+// === Ajouter un rendez-vous ===
 btnAdd.addEventListener("click", () => {
   const nom = nomAdd.value.trim();
   const tel = telAdd.value.trim();
-  if (!nom || !tel) {
+
+  if (nom === "" || tel === "") {
     alert("Veuillez remplir tous les champs !");
     return;
   }
 
-  const newRdv = {
-    nom,
-    tel,
-    done: false,
-    date: new Date().toLocaleDateString("fr-FR")
-  };
-
-  push(ref(db, "rendezvous"), newRdv)
-    .then(() => {
-      nomAdd.value = "";
-      telAdd.value = "";
-    })
-    .catch(err => alert("Erreur : " + err));
+  const ref = db.ref("rendezvous");
+  ref.once("value").then(snapshot => {
+    const numero = snapshot.numChildren() + 1;
+    ref.push({
+      nom,
+      tel,
+      numero,
+      date: new Date().toLocaleDateString("fr-FR")
+    });
+    nomAdd.value = "";
+    telAdd.value = "";
+  });
 });
 
-// -------------------------------
-// عرض المواعيد
-// -------------------------------
+// === Afficher les rendez-vous ===
 function afficherRendezVous() {
-  const rdvRef = ref(db, "rendezvous");
-  onValue(rdvRef, (snapshot) => {
-    rdvTableBody.innerHTML = "";
-    let total = 0;
-    let restants = 0;
-
+  const ref = db.ref("rendezvous");
+  ref.on("value", snapshot => {
+    rdvTable.innerHTML = "";
+    let i = 1;
     snapshot.forEach(child => {
-      const rdv = child.val();
-      const id = child.key;
-      total++;
+      const data = child.val();
+      const tr = document.createElement("tr");
 
-      const row = document.createElement("tr");
-      if (rdv.done) row.classList.add("done");
-
-      row.innerHTML = `
-        <td>${total}</td>
-        <td>${rdv.nom}</td>
-        <td>${rdv.tel}</td>
-        <td>${rdv.date}</td>
+      tr.innerHTML = `
+        <td>${data.numero}</td>
+        <td>${data.nom}</td>
+        <td>${data.tel}</td>
+        <td>${data.date}</td>
         <td>
-          <button class="btnDone">${rdv.done ? "✔" : "👁"}</button>
-          <button class="btnDelete">🗑</button>
+          <button class="btn-delete" data-id="${child.key}">
+            <i class="fas fa-trash"></i>
+          </button>
         </td>
       `;
-
-      // حذف موعد
-      row.querySelector(".btnDelete").addEventListener("click", () => {
-        if (confirm("Supprimer ce rendez-vous ?")) remove(ref(db, "rendezvous/" + id));
-      });
-
-      // تغيير حالة الكشف
-      row.querySelector(".btnDone").addEventListener("click", () => {
-        update(ref(db, "rendezvous/" + id), { done: !rdv.done });
-      });
-
-      if (!rdv.done) restants++;
-
-      rdvTableBody.appendChild(row);
+      rdvTable.appendChild(tr);
+      i++;
     });
 
-    compteurBox.innerHTML = `<h3>Patients restants : <span>${restants}</span></h3>`;
+    // === Bouton supprimer ===
+    document.querySelectorAll(".btn-delete").forEach(btn => {
+      btn.addEventListener("click", e => {
+        const id = e.currentTarget.getAttribute("data-id");
+        db.ref("rendezvous/" + id).remove();
+      });
+    });
   });
 }
