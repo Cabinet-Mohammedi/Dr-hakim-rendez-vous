@@ -17,14 +17,18 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const ref = db.ref("rendezvous");
     ref.once("value").then(snapshot => {
-      const numero = snapshot.numChildren() + 1;
+      const numero = snapshot.numChildren() + 1; // رقم الحجز
+      const avant = snapshot.numChildren();       // عدد المرضى قبله
+
       ref.push({
         nom,
         tel,
         numero,
         date: new Date().toLocaleDateString("fr-FR")
       });
-      alert(`Rendez-vous réservé ! Votre numéro: ${numero}`);
+
+      alert(`Rendez-vous réservé !\nVotre numéro: ${numero}\nNombre de patients avant vous: ${avant}`);
+
       nomInput.value = "";
       telInput.value = "";
     });
