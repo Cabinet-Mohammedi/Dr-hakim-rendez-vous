@@ -6,6 +6,21 @@
   <title>Espace médecin - Cabinet</title>
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    body { font-family: Arial, sans-serif; margin:0; padding:0; background:#f2f2f2; text-align:center; }
+    header { background:#007BFF; color:#fff; padding:15px 0; }
+    h1 { margin:0; font-size:1.5em; }
+    .card { background:#fff; margin:20px auto; padding:15px; border-radius:10px; max-width:400px; box-shadow:0 2px 8px rgba(0,0,0,0.2); }
+    .form-card input { width:90%; padding:10px; margin:5px 0; font-size:1em; }
+    .form-card button { width:95%; padding:10px; margin-top:10px; font-size:1em; cursor:pointer; background:#28a745; color:#fff; border:none; border-radius:5px; }
+    .form-card button i { margin-right:5px; }
+    table { width:95%; margin:10px auto; border-collapse:collapse; }
+    table th, table td { border:1px solid #ddd; padding:8px; font-size:0.9em; text-align:center; }
+    table th { background:#007BFF; color:#fff; }
+    .btn-delete { background:#dc3545; color:#fff; border:none; padding:5px 8px; border-radius:5px; cursor:pointer; }
+    footer { margin:20px 0; }
+    footer a { color:#007BFF; text-decoration:none; }
+  </style>
 </head>
 <body>
   <header>
@@ -27,8 +42,8 @@
       <!-- Ajouter un rendez-vous -->
       <section class="card form-card">
         <h3>Ajouter un rendez-vous</h3>
-        <input type="text" id="nomAdd" placeholder="Nom et prénom" style="width: 100%;">
-        <input type="tel" id="telAdd" placeholder="Téléphone" style="width: 100%;">
+        <input type="text" id="nomAdd" placeholder="Nom et prénom">
+        <input type="tel" id="telAdd" placeholder="Téléphone">
         <button id="btnAdd"><i class="fas fa-plus-circle"></i> Ajouter</button>
       </section>
 
