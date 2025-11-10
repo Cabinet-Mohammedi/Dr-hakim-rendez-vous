@@ -3,53 +3,52 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Cabinet Mohammedi Hakim</title>
+  <title>Cabinet Mohammedi - Réservation</title>
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-  <style>
-    body { font-family: Arial, sans-serif; margin:0; padding:0; text-align:center; background:#f2f2f2; }
-    header { background:#007BFF; color:#fff; padding:15px 0; }
-    h1 { margin:0; font-size:1.5em; }
-    .card { background:#fff; margin:20px auto; padding:20px; border-radius:10px; max-width:400px; box-shadow:0 2px 8px rgba(0,0,0,0.2); }
-    input { width:90%; padding:10px; margin:5px 0; font-size:1em; }
-    button { width:95%; padding:12px 0; font-size:1em; cursor:pointer; background:#28a745; color:#fff; border:none; border-radius:5px; margin-top:10px; }
-    button i { margin-right:5px; }
-    .btn-contact { background:#007BFF; margin-top:10px; }
-    .btn-doctor { background:#6c757d; margin-top:10px; }
-    footer { margin:20px 0; }
-  </style>
 </head>
 <body>
+  <header>
+    <h1>Cabinet Mohammedi Hakim</h1>
+  </header>
 
-<header>
-  <h1>Cabinet Mohammedi Hakim</h1>
-</header>
+  <main>
+    <section class="card form-card">
+      <h2>Réserver un rendez-vous</h2>
 
-<main>
-  <div class="card">
-    <button class="btn-contact" onclick="window.location.href='tel:0772812293'">
-      <i class="fas fa-phone"></i> Contacter le médecin
-    </button>
-    
-    <button class="btn-doctor" onclick="window.location.href='medecin.html'">
-      <i class="fas fa-user-md"></i> Espace Médecin
-    </button>
-  </div>
+      <label for="nomPatient">Nom :</label>
+      <input type="text" id="nomPatient" placeholder="Nom complet">
 
-  <div class="card">
-    <h3>Réserver un rendez-vous</h3>
-    <input type="text" id="nom" placeholder="Nom et prénom">
-    <input type="tel" id="tel" placeholder="Téléphone">
-    <button id="btnReserve"><i class="fas fa-calendar-plus"></i> Réserver un rendez-vous</button>
-  </div>
-</main>
+      <label for="telPatient">Téléphone :</label>
+      <input type="tel" id="telPatient" placeholder="Numéro de téléphone">
 
-<!-- Firebase -->
-<script src="https://www.gstatic.com/firebasejs/10.12.3/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.3/firebase-database-compat.js"></script>
+      <button id="btnReserve"><i class="fas fa-calendar-plus"></i> Réserver</button>
 
-<script src="firebase-config.js"></script>
-<script src="script-patient.js"></script>
+      <div class="info">
+        <p>Votre numéro : <span id="numeroPatient">-</span></p>
+        <p>Patients avant vous : <span id="restant">-</span></p>
+      </div>
+    </section>
 
+    <section class="contact">
+      <a href="tel:0772812293" class="btn-contact">
+        <i class="fas fa-phone"></i> Contacter le médecin
+      </a>
+    </section>
+
+    <section class="espace-medecin">
+      <a href="medecin.html" class="btn-medecin">
+        <i class="fas fa-user-md"></i> Espace médecin
+      </a>
+    </section>
+  </main>
+
+  <footer>
+    <p>© Cabinet Mohammedi Hakim</p>
+  </footer>
+
+  <!-- Scripts -->
+  <script type="module" src="firebase-config.js"></script>
+  <script type="module" src="script-patient.js"></script>
 </body>
 </html>
