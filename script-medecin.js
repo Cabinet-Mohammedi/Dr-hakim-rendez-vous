@@ -69,7 +69,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!data.checked) remaining++;
 
         const tr = document.createElement("tr");
-        if (data.checked) tr.classList.add("checked");
+        tr.style.background = data.checked ? "#f28b82" : "white"; // أحمر فاتح عند تم الكشف
 
         tr.innerHTML = `
           <td>${data.numero}</td>
@@ -77,8 +77,10 @@ document.addEventListener("DOMContentLoaded", () => {
           <td>${data.tel}</td>
           <td>${data.date}</td>
           <td>
-            <button class="btn-check" data-id="${child.key}" ${data.checked ? "disabled" : ""}>✅</button>
-            <button class="btn-delete" data-id="${child.key}">🗑️</button>
+            <button class="btn-check" data-id="${child.key}" style="background:green; color:white; margin-right:5px;">
+              ✅
+            </button>
+            <button class="btn-delete" data-id="${child.key}" style="background:red; color:white;">🗑️</button>
           </td>
         `;
         rdvTable.appendChild(tr);
@@ -86,11 +88,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
       remainingSpan.textContent = remaining;
 
-      // === Bouton "tem découverte" ===
+      // === Bouton toggle "tem découverte" ===
       document.querySelectorAll(".btn-check").forEach(btn => {
         btn.addEventListener("click", e => {
           const id = e.currentTarget.getAttribute("data-id");
-          db.ref("rendezvous/" + id).update({ checked: true });
+          const refPatient = db.ref("rendezvous/" + id);
+
+          refPatient.once("value").then(snap => {
+            const current = snap.val().checked;
+            refPatient.update({ checked: !current }); // تبديل بين true و false
+          });
         });
       });
 
