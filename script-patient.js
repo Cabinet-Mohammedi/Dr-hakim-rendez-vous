@@ -1,80 +1,23 @@
-document.addEventListener("DOMContentLoaded", () => {
-  const btnLogin = document.getElementById("btnLogin");
-  const mdpInput = document.getElementById("mdpMedecin");
-  const loginCard = document.getElementById("loginCard");
-  const medContent = document.getElementById("medContent");
-  const loginError = document.getElementById("loginError");
+import { ref, push, onValue } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-database.js";
+import { db } from "./firebase-config.js";
 
-  const nomAdd = document.getElementById("nomAdd");
-  const telAdd = document.getElementById("telAdd");
-  const btnAdd = document.getElementById("btnAdd");
-  const rdvTable = document.getElementById("rdvTable").querySelector("tbody");
+const btnReserve = document.getElementById("btnReserve");
+const infoReservation = document.getElementById("infoReservation");
 
-  // === Initialisation Firebase ===
-  const app = firebase.initializeApp(firebaseConfig);
-  const db = firebase.database();
+btnReserve.addEventListener("click", () => {
+  const nom = document.getElementById("nomPatient").value.trim();
+  const tel = document.getElementById("telPatient").value.trim();
+  if(!nom || !tel) { alert("Veuillez remplir tous les champs."); return; }
 
-  // === Vérifier si mot de passe déjà sauvegardé ===
-  if (localStorage.getItem("mdpMedecin") === "docteur123") {
-    loginCard.style.display = "none";
-    medContent.style.display = "block";
-    afficherRendezVous();
-  }
+  const rdvRef = ref(db, "rendezvous");
+  onValue(rdvRef, snapshot => {
+    const total = snapshot.exists() ? Object.keys(snapshot.val()).length : 0;
+    const numero = total + 1;
+    const date = new Date().toLocaleDateString("fr-FR");
+    push(rdvRef, { nom, tel, numero, date });
+    infoReservation.textContent = `Votre numéro de rendez-vous: ${numero}. Nombre de patients avant vous: ${total}`;
+  }, { onlyOnce:true });
 
-  // === Connexion médecin ===
-  btnLogin.addEventListener("click", () => {
-    if (mdpInput.value.trim() === "docteur123") {
-      localStorage.setItem("mdpMedecin", "docteur123");
-      loginCard.style.display = "none";
-      medContent.style.display = "block";
-      afficherRendezVous();
-    } else {
-      loginError.textContent = "Mot de passe incorrect !";
-    }
-  });
-
-  // === Ajouter un rendez-vous ===
-  btnAdd.addEventListener("click", () => {
-    const nom = nomAdd.value.trim();
-    const tel = telAdd.value.trim();
-    if (!nom || !tel) { alert("Veuillez remplir tous les champs !"); return; }
-
-    const ref = db.ref("rendezvous");
-    ref.once("value").then(snapshot => {
-      const numero = snapshot.numChildren() + 1;
-      ref.push({ nom, tel, numero, date: new Date().toLocaleDateString("fr-FR") });
-      nomAdd.value = "";
-      telAdd.value = "";
-    });
-  });
-
-  // === Afficher les rendez-vous ===
-  function afficherRendezVous() {
-    const ref = db.ref("rendezvous");
-    ref.on("value", snapshot => {
-      rdvTable.innerHTML = "";
-      snapshot.forEach(child => {
-        const data = child.val();
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-          <td>${data.numero}</td>
-          <td>${data.nom}</td>
-          <td>${data.tel}</td>
-          <td>${data.date}</td>
-          <td>
-            <button class="btn-delete" data-id="${child.key}"><i class="fas fa-trash"></i></button>
-          </td>
-        `;
-        rdvTable.appendChild(tr);
-      });
-
-      // === Bouton supprimer ===
-      document.querySelectorAll(".btn-delete").forEach(btn => {
-        btn.addEventListener("click", e => {
-          const id = e.currentTarget.getAttribute("data-id");
-          db.ref("rendezvous/" + id).remove();
-        });
-      });
-    });
-  }
+  document.getElementById("nomPatient").value="";
+  document.getElementById("telPatient").value="";
 });
