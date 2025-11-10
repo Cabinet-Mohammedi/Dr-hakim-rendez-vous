@@ -1,11 +1,10 @@
 document.addEventListener("DOMContentLoaded", () => {
+  const app = firebase.initializeApp(firebaseConfig);
+  const db = firebase.database();
+
   const btnReserve = document.getElementById("btnReserve");
   const nomInput = document.getElementById("nom");
   const telInput = document.getElementById("tel");
-
-  // Initialisation Firebase
-  const app = firebase.initializeApp(firebaseConfig);
-  const db = firebase.database();
 
   btnReserve.addEventListener("click", () => {
     const nom = nomInput.value.trim();
