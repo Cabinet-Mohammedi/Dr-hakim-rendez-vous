@@ -1,45 +1,93 @@
-window.addEventListener("load", () => {
-  const btnReserve = document.getElementById("btnReserve");
-  const nomInput = document.getElementById("nom");
-  const telInput = document.getElementById("tel");
-  const infoReservation = document.getElementById("infoReservation");
-  const remainingSpan = document.getElementById("remaining");
+// Connexion Firebase (compat)
+const firebaseConfig = {
+  apiKey: "AIzaSyBIrVOglgZALaaK6IwPwqHMiynBGD4Z3JM",
+  authDomain: "mohammedi-cabinet.firebaseapp.com",
+  databaseURL: "https://mohammedi-cabinet-default-rtdb.firebaseio.com",
+  projectId: "mohammedi-cabinet",
+  storageBucket: "mohammedi-cabinet.firebasestorage.app",
+  messagingSenderId: "666383356275",
+  appId: "1:666383356275:web:09de11f9dfa2451d843506",
+  measurementId: "G-VT06BFXNP1"
+};
 
-  // التأكد أن Firebase جاهز
-  if (!firebase.apps.length) {
-    alert("Erreur : Firebase n'est pas initialisé.");
+// Initialisation Firebase
+if (!firebase.apps.length) {
+  firebase.initializeApp(firebaseConfig);
+}
+
+const db = firebase.database();
+const rdvRef = db.ref("rendezvous");
+
+// Lorsqu’un patient valide son rendez-vous
+document.getElementById("btnReserver").addEventListener("click", (e) => {
+  e.preventDefault();
+
+  const nom = document.getElementById("nom").value.trim();
+  const tel = document.getElementById("tel").value.trim();
+  const date = document.getElementById("date").value;
+
+  if (!nom || !tel || !date) {
+    alert("Veuillez remplir tous les champs !");
     return;
   }
 
-  const db = firebase.database();
+  // On compte combien de rendez-vous sont déjà dans la base pour cette date
+  rdvRef.orderByChild("date").equalTo(date).once("value", (snapshot) => {
+    const total = snapshot.exists() ? snapshot.numChildren() : 0;
+    const nouveauNumero = total + 1;
 
-  btnReserve.addEventListener("click", () => {
-    const nom = nomInput.value.trim();
-    const tel = telInput.value.trim();
+    const nouveauRdv = {
+      nom,
+      tel,
+      date,
+      numero: nouveauNumero,
+      etat: "en attente"
+    };
 
-    if (!nom || !tel) {
-      alert("Veuillez remplir tous les champs.");
+    rdvRef.push(nouveauRdv, (error) => {
+      if (error) {
+        alert("Erreur lors de l'enregistrement !");
+      } else {
+        alert("Rendez-vous enregistré avec succès !");
+        document.getElementById("formRdv").reset();
+      }
+    });
+  });
+});
+
+// Calcul du "remaining" pour le patient (en direct)
+const remainingDiv = document.getElementById("remaining");
+
+function surveillerRemaining(tel) {
+  rdvRef.on("value", (snapshot) => {
+    if (!snapshot.exists()) {
+      remainingDiv.innerText = "Aucun rendez-vous trouvé.";
       return;
     }
 
-    const rdvRef = db.ref("rendezvous");
+    const all = Object.entries(snapshot.val())
+      .map(([key, rdv]) => ({ key, ...rdv }))
+      .filter(r => r.etat !== "terminé")
+      .sort((a, b) => a.numero - b.numero);
 
-    rdvRef.once("value")
-      .then(snapshot => {
-        const total = snapshot.exists() ? Object.keys(snapshot.val()).length : 0;
-        const numero = total + 1;
-        const date = new Date().toLocaleDateString("fr-FR");
+    const patient = all.find(r => r.tel === tel);
 
-        rdvRef.push({ nom, tel, numero, date });
+    if (!patient) {
+      remainingDiv.innerText = "Vous n'avez pas de rendez-vous en attente.";
+      return;
+    }
 
-        infoReservation.textContent = `✅ Votre numéro de rendez-vous : ${numero}. Patients avant vous : ${total}`;
-
-        nomInput.value = "";
-        telInput.value = "";
-      })
-      .catch(error => {
-        console.error("Erreur Firebase:", error);
-        alert("Une erreur est survenue. Réessayez plus tard.");
-      });
+    const position = all.findIndex(r => r.tel === tel);
+    remainingDiv.innerText = `🕐 Il reste ${position} patient(s) avant vous.`;
   });
+}
+
+// Permet au patient de vérifier sa position en entrant son numéro
+document.getElementById("btnVerifier").addEventListener("click", () => {
+  const tel = document.getElementById("telVerif").value.trim();
+  if (!tel) {
+    alert("Entrez votre numéro de téléphone !");
+    return;
+  }
+  surveillerRemaining(tel);
 });
