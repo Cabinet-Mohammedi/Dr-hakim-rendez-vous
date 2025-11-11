@@ -1,10 +1,10 @@
-import { ref, push, onValue } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-database.js";
-import { db } from "./firebase-config.js";
-
 const btnReserve = document.getElementById("btnReserve");
-const nomInput = document.getElementById("nomPatient");
-const telInput = document.getElementById("telPatient");
+const nomInput = document.getElementById("nom");
+const telInput = document.getElementById("tel");
 const infoReservation = document.getElementById("infoReservation");
+
+// Firebase déjà initialisé dans firebase-config.js
+const db = firebase.database();
 
 btnReserve.addEventListener("click", () => {
   const nom = nomInput.value.trim();
@@ -15,27 +15,18 @@ btnReserve.addEventListener("click", () => {
     return;
   }
 
-  const rdvRef = ref(db, "rendezvous");
+  const rdvRef = db.ref("rendezvous");
 
-  onValue(
-    rdvRef,
-    (snapshot) => {
-      const total = snapshot.exists() ? Object.keys(snapshot.val()).length : 0;
-      const numero = total + 1;
-      const date = new Date().toLocaleDateString("fr-FR");
+  rdvRef.once("value").then(snapshot => {
+    const total = snapshot.exists() ? Object.keys(snapshot.val()).length : 0;
+    const numero = total + 1;
+    const date = new Date().toLocaleDateString("fr-FR");
 
-      push(rdvRef, { nom, tel, numero, date });
+    rdvRef.push({ nom, tel, numero, date });
 
-      infoReservation.textContent = `Votre numéro de rendez-vous : ${numero}. Nombre de patients avant vous : ${total}`;
-    },
-    { onlyOnce: true }
-  );
+    alert(`Votre numéro de rendez-vous : ${numero}\nPatients avant vous : ${total}`);
 
-  // Réinitialiser les champs
-  nomInput.value = "";
-  telInput.value = "";
+    nomInput.value = "";
+    telInput.value = "";
+  });
 });
-
-});
-
-
