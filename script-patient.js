@@ -32,22 +32,14 @@ document.addEventListener("DOMContentLoaded", () => {
         checked: false
       });
       
-      const numero = snapshot.numChildren() + 1; // رقم الحجز
-      const avant = snapshot.numChildren();       // عدد المرضى قبله
-
-      ref.push({
-        nom,
-        tel,
-        numero,
-        date: new Date().toLocaleDateString("fr-FR")
-      });
-
-      alert(`Rendez-vous réservé !\nVotre numéro: ${numero}\nNombre de patients avant vous: ${avant}`);
-
-      nomInput.value = "";
+       nomInput.value = "";
       telInput.value = "";
+
+      numeroSpan.textContent = numero;       // رقم الحجز
+      restantSpan.textContent = remaining;   // عدد المرضى قبله
     });
   });
 });
+
 
 
