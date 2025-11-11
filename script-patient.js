@@ -1,9 +1,10 @@
+// Script de réservation (version compat)
 const btnReserve = document.getElementById("btnReserve");
 const nomInput = document.getElementById("nom");
 const telInput = document.getElementById("tel");
 const infoReservation = document.getElementById("infoReservation");
 
-// Firebase déjà initialisé dans firebase-config.js
+// Référence à la base de données
 const db = firebase.database();
 
 btnReserve.addEventListener("click", () => {
@@ -17,6 +18,7 @@ btnReserve.addEventListener("click", () => {
 
   const rdvRef = db.ref("rendezvous");
 
+  // Lire les données une seule fois
   rdvRef.once("value").then(snapshot => {
     const total = snapshot.exists() ? Object.keys(snapshot.val()).length : 0;
     const numero = total + 1;
@@ -24,9 +26,12 @@ btnReserve.addEventListener("click", () => {
 
     rdvRef.push({ nom, tel, numero, date });
 
-    alert(`Votre numéro de rendez-vous : ${numero}\nPatients avant vous : ${total}`);
+    infoReservation.textContent = `✅ Votre numéro de rendez-vous : ${numero}. Patients avant vous : ${total}`;
 
     nomInput.value = "";
     telInput.value = "";
+  }).catch(error => {
+    console.error("Erreur Firebase:", error);
+    alert("Une erreur est survenue. Réessayez plus tard.");
   });
 });
