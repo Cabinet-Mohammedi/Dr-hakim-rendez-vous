@@ -27,10 +27,11 @@ document.addEventListener("DOMContentLoaded", () => {
         date: new Date().toLocaleDateString("fr-FR")
       });
 
-      alert(`Rendez-vous réservé !\nVotre numéro: ${numero}\nNombre de patients avant vous: ${avant}`);
+      alert(`Rendez-vous réservé !\nVotre numéro: ${numero}. Nombre de patients avant vous: ${total}`;
 
       nomInput.value = "";
       telInput.value = "";
     });
   });
 });
+
