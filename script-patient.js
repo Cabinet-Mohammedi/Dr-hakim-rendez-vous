@@ -16,8 +16,22 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    const ref = db.ref("rendezvous");
+   const ref = db.ref("rendezvous");
     ref.once("value").then(snapshot => {
+      let remaining = 0;
+      snapshot.forEach(child => {
+        if (!child.val().checked) remaining++; // فقط المرضى الغير مكتملين
+      });
+
+      const numero = snapshot.numChildren() + 1; // رقم المريض الجديد
+      ref.push({
+        nom,
+        tel,
+        numero,
+        date: new Date().toLocaleDateString("fr-FR"),
+        checked: false
+      });
+      
       const numero = snapshot.numChildren() + 1; // رقم الحجز
       const avant = snapshot.numChildren();       // عدد المرضى قبله
 
@@ -35,4 +49,5 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 });
+
 
