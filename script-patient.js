@@ -3,6 +3,7 @@ window.addEventListener("load", () => {
   const nomInput = document.getElementById("nom");
   const telInput = document.getElementById("tel");
   const infoReservation = document.getElementById("infoReservation");
+  const remainingSpan = document.getElementById("remaining");
 
   // التأكد أن Firebase جاهز
   if (!firebase.apps.length) {
@@ -42,3 +43,4 @@ window.addEventListener("load", () => {
       });
   });
 });
+
