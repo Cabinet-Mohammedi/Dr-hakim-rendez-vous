@@ -5,6 +5,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const btnReserve = document.getElementById("btnReserve");
   const nomInput = document.getElementById("nom");
   const telInput = document.getElementById("tel");
+  const remainingSpan = document.getElementById("remaining");
 
   btnReserve.addEventListener("click", () => {
     const nom = nomInput.value.trim();
@@ -34,3 +35,4 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 });
+
