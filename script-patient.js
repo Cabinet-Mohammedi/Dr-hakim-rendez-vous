@@ -1,12 +1,14 @@
 document.addEventListener("DOMContentLoaded", () => {
-  const app = firebase.initializeApp(firebaseConfig);
-  const db = firebase.database();
-
   const btnReserve = document.getElementById("btnReserve");
   const nomInput = document.getElementById("nom");
   const telInput = document.getElementById("tel");
   const numeroSpan = document.getElementById("numeroPatient");
   const remainingSpan = document.getElementById("remaining");
+
+    // === Initialisation Firebase ===
+  const app = firebase.initializeApp(firebaseConfig);
+  const db = firebase.database();
+
 
   btnReserve.addEventListener("click", () => {
     const nom = nomInput.value.trim();
@@ -41,6 +43,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 });
+
 
 
 
