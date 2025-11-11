@@ -5,6 +5,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const btnReserve = document.getElementById("btnReserve");
   const nomInput = document.getElementById("nom");
   const telInput = document.getElementById("tel");
+  const numeroSpan = document.getElementById("numeroPatient");
   const remainingSpan = document.getElementById("remaining");
 
   btnReserve.addEventListener("click", () => {
@@ -40,6 +41,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 });
+
 
 
 
