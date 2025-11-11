@@ -3,6 +3,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const nomInput = document.getElementById("nom");
   const telInput = document.getElementById("tel");
   const numeroSpan = document.getElementById("numeroPatient");
+  const restantSpan = document.getElementById("restant"); // عنصر لإظهار عدد المتبقي
   const remainingSpan = document.getElementById("remaining");
 
     // === Initialisation Firebase ===
@@ -43,6 +44,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 });
+
 
 
 
