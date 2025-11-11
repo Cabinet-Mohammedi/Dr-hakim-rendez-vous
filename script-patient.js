@@ -3,9 +3,7 @@ window.addEventListener("load", () => {
   const nomInput = document.getElementById("nom");
   const telInput = document.getElementById("tel");
   const infoReservation = document.getElementById("infoReservation");
-  const remainingSpan = document.getElementById("remaining");
 
-  // التأكد أن Firebase جاهز
   if (!firebase.apps.length) {
     alert("Erreur : Firebase n'est pas initialisé.");
     return;
@@ -24,23 +22,28 @@ window.addEventListener("load", () => {
 
     const rdvRef = db.ref("rendezvous");
 
-    rdvRef.once("value")
-      .then(snapshot => {
-        const total = snapshot.exists() ? Object.keys(snapshot.val()).length : 0;
-        const numero = total + 1;
-        const date = new Date().toLocaleDateString("fr-FR");
+    rdvRef.once("value").then(snapshot => {
+      const total = snapshot.exists() ? Object.keys(snapshot.val()).length : 0;
+      const numero = total + 1;
+      const date = new Date().toLocaleDateString("fr-FR");
 
-        rdvRef.push({ nom, tel, numero, date });
+      // Enregistrer le rendez-vous
+      rdvRef.push({ nom, tel, numero, date, etat: "en attente" });
 
-        infoReservation.textContent = `✅ Votre numéro de rendez-vous : ${numero}. Patients avant vous : ${total}`;
+      // Calcul du nombre de patients avant le patient actuel
+      const remaining = total; // car total avant ajout = patients avant toi
 
-        nomInput.value = "";
-        telInput.value = "";
-      })
-      .catch(error => {
-        console.error("Erreur Firebase:", error);
-        alert("Une erreur est survenue. Réessayez plus tard.");
-      });
+      infoReservation.innerHTML = `
+        ✅ Votre numéro de rendez-vous : <b>${numero}</b><br>
+        🧍‍♂️ Patients avant vous : <b>${remaining}</b>
+      `;
+
+      nomInput.value = "";
+      telInput.value = "";
+    })
+    .catch(error => {
+      console.error("Erreur Firebase:", error);
+      alert("Une erreur est survenue. Réessayez plus tard.");
+    });
   });
 });
-
