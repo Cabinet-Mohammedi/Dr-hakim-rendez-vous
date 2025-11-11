@@ -1,93 +1,88 @@
-// Connexion Firebase (compat)
-const firebaseConfig = {
-  apiKey: "AIzaSyBIrVOglgZALaaK6IwPwqHMiynBGD4Z3JM",
-  authDomain: "mohammedi-cabinet.firebaseapp.com",
-  databaseURL: "https://mohammedi-cabinet-default-rtdb.firebaseio.com",
-  projectId: "mohammedi-cabinet",
-  storageBucket: "mohammedi-cabinet.firebasestorage.app",
-  messagingSenderId: "666383356275",
-  appId: "1:666383356275:web:09de11f9dfa2451d843506",
-  measurementId: "G-VT06BFXNP1"
-};
+document.addEventListener("DOMContentLoaded", () => {
+  // === Config Firebase (même que chez le médecin) ===
+  const firebaseConfig = {
+    apiKey: "AIzaSyBIrVOglgZALaaK6IwPwqHMiynBGD4Z3JM",
+    authDomain: "mohammedi-cabinet.firebaseapp.com",
+    databaseURL: "https://mohammedi-cabinet-default-rtdb.firebaseio.com",
+    projectId: "mohammedi-cabinet",
+    storageBucket: "mohammedi-cabinet.firebasestorage.app",
+    messagingSenderId: "666383356275",
+    appId: "1:666383356275:web:09de11f9dfa2451d843506",
+    measurementId: "G-VT06BFXNP1"
+  };
 
-// Initialisation Firebase
-if (!firebase.apps.length) {
-  firebase.initializeApp(firebaseConfig);
-}
+  if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+  const db = firebase.database();
+  const ref = db.ref("rendezvous");
 
-const db = firebase.database();
-const rdvRef = db.ref("rendezvous");
+  const btnReserve = document.getElementById("btnReserve");
+  const nomInput = document.getElementById("nom");
+  const telInput = document.getElementById("tel");
+  const infoReservation = document.getElementById("infoReservation");
 
-// Lorsqu’un patient valide son rendez-vous
-document.getElementById("btnReserver").addEventListener("click", (e) => {
-  e.preventDefault();
+  // === Réserver un rendez-vous ===
+  btnReserve.addEventListener("click", () => {
+    const nom = nomInput.value.trim();
+    const tel = telInput.value.trim();
+    if (!nom || !tel) {
+      alert("Veuillez remplir tous les champs !");
+      return;
+    }
 
-  const nom = document.getElementById("nom").value.trim();
-  const tel = document.getElementById("tel").value.trim();
-  const date = document.getElementById("date").value;
+    // On compte combien existent déjà
+    ref.once("value").then(snapshot => {
+      const numero = snapshot.numChildren() + 1;
+      const date = new Date().toLocaleDateString("fr-FR");
 
-  if (!nom || !tel || !date) {
-    alert("Veuillez remplir tous les champs !");
-    return;
-  }
+      ref.push({
+        nom,
+        tel,
+        numero,
+        date,
+        checked: false
+      });
 
-  // On compte combien de rendez-vous sont déjà dans la base pour cette date
-  rdvRef.orderByChild("date").equalTo(date).once("value", (snapshot) => {
-    const total = snapshot.exists() ? snapshot.numChildren() : 0;
-    const nouveauNumero = total + 1;
+      infoReservation.textContent = `✅ Votre numéro de rendez-vous est ${numero}.`;
+      nomInput.value = "";
+      telInput.value = "";
 
-    const nouveauRdv = {
-      nom,
-      tel,
-      date,
-      numero: nouveauNumero,
-      etat: "en attente"
-    };
-
-    rdvRef.push(nouveauRdv, (error) => {
-      if (error) {
-        alert("Erreur lors de l'enregistrement !");
-      } else {
-        alert("Rendez-vous enregistré avec succès !");
-        document.getElementById("formRdv").reset();
-      }
+      // Après la réservation, commencer à surveiller la position
+      surveillerPosition(tel);
     });
   });
-});
 
-// Calcul du "remaining" pour le patient (en direct)
-const remainingDiv = document.getElementById("remaining");
+  // === Fonction pour suivre la position (remaining) ===
+  function surveillerPosition(tel) {
+    ref.on("value", snapshot => {
+      if (!snapshot.exists()) {
+        infoReservation.textContent = "Aucun rendez-vous trouvé.";
+        return;
+      }
 
-function surveillerRemaining(tel) {
-  rdvRef.on("value", (snapshot) => {
-    if (!snapshot.exists()) {
-      remainingDiv.innerText = "Aucun rendez-vous trouvé.";
-      return;
-    }
+      // Récupérer et trier par numéro
+      const data = Object.values(snapshot.val()).sort((a, b) => a.numero - b.numero);
 
-    const all = Object.entries(snapshot.val())
-      .map(([key, rdv]) => ({ key, ...rdv }))
-      .filter(r => r.etat !== "terminé")
-      .sort((a, b) => a.numero - b.numero);
+      // Filtrer les patients encore en attente (checked == false)
+      const enAttente = data.filter(d => !d.checked);
 
-    const patient = all.find(r => r.tel === tel);
+      // Trouver le patient actuel
+      const patient = data.find(d => d.tel === tel);
 
-    if (!patient) {
-      remainingDiv.innerText = "Vous n'avez pas de rendez-vous en attente.";
-      return;
-    }
+      if (!patient) {
+        infoReservation.textContent = "Vous n'avez pas de rendez-vous.";
+        return;
+      }
 
-    const position = all.findIndex(r => r.tel === tel);
-    remainingDiv.innerText = `🕐 Il reste ${position} patient(s) avant vous.`;
-  });
-}
+      // Calculer combien avant lui
+      const avant = enAttente.findIndex(d => d.tel === tel);
 
-// Permet au patient de vérifier sa position en entrant son numéro
-document.getElementById("btnVerifier").addEventListener("click", () => {
-  const tel = document.getElementById("telVerif").value.trim();
-  if (!tel) {
-    alert("Entrez votre numéro de téléphone !");
-    return;
+      if (avant === -1) {
+        infoReservation.textContent = "👨‍⚕️ Votre tour est en cours ou déjà passé.";
+      } else if (avant === 0) {
+        infoReservation.textContent = "🩺 C'est votre tour ! Veuillez vous présenter.";
+      } else {
+        infoReservation.textContent = `⏳ Il reste ${avant} patient(s) avant vous.`;
+      }
+    });
   }
-  surveillerRemaining(tel);
 });
