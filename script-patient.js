@@ -2,12 +2,19 @@ import { ref, push, onValue } from "https://www.gstatic.com/firebasejs/10.13.0/f
 import { db } from "./firebase-config.js";
 
 const btnReserve = document.getElementById("btnReserve");
+const btnReserve = document.getElementById("btnReserve");
+const nomInput = document.getElementById("nom");
+const telInput = document.getElementById("tel");
+
 const infoReservation = document.getElementById("infoReservation");
 
 btnReserve.addEventListener("click", () => {
   const nom = document.getElementById("nomPatient").value.trim();
   const tel = document.getElementById("telPatient").value.trim();
-  if(!nom || !tel) { alert("Veuillez remplir tous les champs."); return; }
+  if(!nom || !tel) { 
+    alert("Veuillez remplir tous les champs."); 
+    return;
+  }
 
   const rdvRef = ref(db, "rendezvous");
   onValue(rdvRef, snapshot => {
@@ -21,3 +28,4 @@ btnReserve.addEventListener("click", () => {
   document.getElementById("nomPatient").value="";
   document.getElementById("telPatient").value="";
 });
+
