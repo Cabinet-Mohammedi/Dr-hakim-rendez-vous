@@ -47,13 +47,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
       refRdv.push({ nom, tel, numero, date, checked: false });
 
-      // Affichage du message clair dans la page
-      infoReservation.style.color = "green";
-      infoReservation.style.marginTop = "10px";
-      infoReservation.style.fontWeight = "bold";
-      infoReservation.innerHTML = `
-        ✅ Votre numéro est <strong>${numero}</strong>.<br>
-        👥 Il reste <strong>${nonTraites}</strong> patient(s) avant vous.
+    // Affichage du message clair
+      alert(`✅ Votre numéro est ${numero}.\n👥 Il reste ${nonTraites} patient(s) avant vous.`);
       `;
 
       // Réinitialiser les champs
@@ -62,3 +57,4 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 });
+
