@@ -20,7 +20,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const btnReserve = document.getElementById("btnReserve");
   const nomInput = document.getElementById("nom");
   const telInput = document.getElementById("tel");
-  const infoReservation = document.getElementById("infoReservation");
 
   // === Lors de la réservation ===
   btnReserve.addEventListener("click", () => {
@@ -32,55 +31,34 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    // Vérifier si ce patient a déjà réservé
+    // Lecture de tous les rendez-vous
     refRdv.once("value").then(snapshot => {
       const data = snapshot.val() || {};
-      const deja = Object.values(data).find(p => p.tel === tel);
 
-      if (deja) {
-        infoReservation.textContent = `🩺 Vous êtes déjà enregistré avec le numéro ${deja.numero}.`;
-        // Démarrer le suivi en direct
-        surveillerPosition(tel);
-        return;
-      }
+      // Calcul du nombre de patients déjà ajoutés
+      const total = Object.keys(data).length;
 
-      // Créer un nouveau rendez-vous
-      const numero = snapshot.numChildren() + 1;
+      // Calcul du nombre de patients NON encore traités
+      const nonTraites = Object.values(data).filter(p => !p.checked).length;
+
+      // Création du nouveau rendez-vous
+      const numero = total + 1;
       const date = new Date().toLocaleDateString("fr-FR");
-      refRdv.push({ nom, tel, numero, date, checked: false });
 
-      infoReservation.textContent = `✅ Votre numéro : ${numero}. Patients avant vous : ${numero - 1}`;
+      refRdv.push({
+        nom,
+        tel,
+        numero,
+        date,
+        checked: false
+      });
+
+      // Affichage du message clair
+      alert(`✅ Votre numéro est ${numero}.\n👥 Il reste ${nonTraites} patient(s) avant vous.`);
+      
+      // Réinitialiser les champs
       nomInput.value = "";
       telInput.value = "";
-
-      // Démarrer le suivi automatique
-      surveillerPosition(tel);
     });
   });
-
-  // === Fonction : Suivre la position du patient en direct ===
-  function surveillerPosition(tel) {
-    refRdv.on("value", snapshot => {
-      if (!snapshot.exists()) return;
-
-      const data = Object.values(snapshot.val()).sort((a, b) => a.numero - b.numero);
-
-      // Liste des patients non encore traités
-      const enAttente = data.filter(d => !d.checked);
-      const patient = data.find(d => d.tel === tel);
-
-      if (!patient) return;
-
-      // Position du patient parmi ceux en attente
-      const position = enAttente.findIndex(d => d.tel === tel);
-
-      if (position === -1) {
-        infoReservation.textContent = "👨‍⚕️ Votre consultation est terminée.";
-      } else if (position === 0) {
-        infoReservation.textContent = "🩺 C'est votre tour ! Veuillez vous présenter.";
-      } else {
-        infoReservation.textContent = `⏳ Il reste ${position} patient(s) avant vous.`;
-      }
-    });
-  }
 });
