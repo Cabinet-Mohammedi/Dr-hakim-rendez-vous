@@ -20,42 +20,42 @@ document.addEventListener("DOMContentLoaded", () => {
   const btnReserve = document.getElementById("btnReserve");
   const nomInput = document.getElementById("nom");
   const telInput = document.getElementById("tel");
+  const infoReservation = document.getElementById("infoReservation");
 
-  // === Lors de la réservation ===
+  // === Lors du clic sur "Réserver" ===
   btnReserve.addEventListener("click", () => {
     const nom = nomInput.value.trim();
     const tel = telInput.value.trim();
 
     if (!nom || !tel) {
-      alert("⚠️ Veuillez remplir tous les champs !");
+      infoReservation.textContent = "⚠️ Veuillez remplir tous les champs.";
+      infoReservation.style.color = "red";
       return;
     }
 
-    // Lecture de tous les rendez-vous
+    // Lecture des rendez-vous existants
     refRdv.once("value").then(snapshot => {
       const data = snapshot.val() || {};
 
-      // Calcul du nombre de patients déjà ajoutés
+      // Calcul du nombre total et du nombre non traités
       const total = Object.keys(data).length;
-
-      // Calcul du nombre de patients NON encore traités
       const nonTraites = Object.values(data).filter(p => !p.checked).length;
 
       // Création du nouveau rendez-vous
       const numero = total + 1;
       const date = new Date().toLocaleDateString("fr-FR");
 
-      refRdv.push({
-        nom,
-        tel,
-        numero,
-        date,
-        checked: false
-      });
+      refRdv.push({ nom, tel, numero, date, checked: false });
 
-      // Affichage du message clair
-      alert(`✅ Votre numéro est ${numero}.\n👥 Il reste ${nonTraites} patient(s) avant vous.`);
-      
+      // Affichage du message clair dans la page
+      infoReservation.style.color = "green";
+      infoReservation.style.marginTop = "10px";
+      infoReservation.style.fontWeight = "bold";
+      infoReservation.innerHTML = `
+        ✅ Votre numéro est <strong>${numero}</strong>.<br>
+        👥 Il reste <strong>${nonTraites}</strong> patient(s) avant vous.
+      `;
+
       // Réinitialiser les champs
       nomInput.value = "";
       telInput.value = "";
