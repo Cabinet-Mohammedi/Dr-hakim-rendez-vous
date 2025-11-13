@@ -56,12 +56,12 @@ button:hover {
 
 /* Champs du médecin sur une même ligne */
 #nomAdd, #telAdd {
-  width: 48%;
+  width: 60%;
   display: inline-block;
 }
 
 #telAdd {
-  margin-left: 1%;
+  margin-left: 0%;
 }
 
 table {
@@ -104,4 +104,5 @@ footer a {
   color: #0077cc;
   font-weight: bold;
 }
+
 
