@@ -17,9 +17,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const db = firebase.database();
 
   // === Vérifier si mot de passe déjà sauvegardé ===
-  let savedPwd = localStorage.getItem("mdpMedecin") || "docteur123";
-
-  if (localStorage.getItem("loggedMedecin") === "true") {
+  if (localStorage.getItem("mdpMedecin") === "docteur123") {
     loginCard.style.display = "none";
     medContent.style.display = "block";
     afficherRendezVous();
@@ -27,8 +25,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // === Connexion médecin ===
   btnLogin.addEventListener("click", () => {
-    if (mdpInput.value.trim() === savedPwd) {
-      localStorage.setItem("loggedMedecin", "true");
+    if (mdpInput.value.trim() === "docteur123") {
+      localStorage.setItem("mdpMedecin", "docteur123");
       loginCard.style.display = "none";
       medContent.style.display = "block";
       afficherRendezVous();
@@ -71,7 +69,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!data.checked) remaining++;
 
         const tr = document.createElement("tr");
-        tr.style.background = data.checked ? "#f28b82" : "white";
+        tr.style.background = data.checked ? "#f28b82" : "white"; // أحمر فاتح عند تم الكشف
 
         tr.innerHTML = `
           <td>${data.numero}</td>
@@ -80,9 +78,9 @@ document.addEventListener("DOMContentLoaded", () => {
           <td>${data.date}</td>
           <td>
             <button class="btn-check" data-id="${child.key}" style="background:green; color:white; margin-right:5px;">
-              ✅
+              ?
             </button>
-            <button class="btn-delete" data-id="${child.key}" style="background:red; color:white;">🗑️</button>
+            <button class="btn-delete" data-id="${child.key}" style="background:red; color:white;">???</button>
           </td>
         `;
         rdvTable.appendChild(tr);
@@ -90,7 +88,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       remainingSpan.textContent = remaining;
 
-      // === Bouton toggle ===
+      // === Bouton toggle "tem de?couverte" ===
       document.querySelectorAll(".btn-check").forEach(btn => {
         btn.addEventListener("click", e => {
           const id = e.currentTarget.getAttribute("data-id");
@@ -98,7 +96,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
           refPatient.once("value").then(snap => {
             const current = snap.val().checked;
-            refPatient.update({ checked: !current });
+            refPatient.update({ checked: !current }); // تبديل بين true و false
           });
         });
       });
@@ -112,27 +110,4 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     });
   }
-
-  // === Bouton changer mot de passe ===
-  const btnChangePwd = document.getElementById("btnChangePwd");
-
-  btnChangePwd.addEventListener("click", () => {
-    const currentPwd = localStorage.getItem("mdpMedecin") || "docteur123";
-
-    const ancien = prompt("أدخل كلمة المرور الحالية:");
-    if (ancien !== currentPwd) {
-      alert("❌ كلمة المرور الحالية غير صحيحة");
-      return;
-    }
-
-    const nouveau = prompt("أدخل كلمة المرور الجديدة:");
-    if (!nouveau || nouveau.trim() === "") {
-      alert("❌ كلمة المرور الجديدة غير صالحة");
-      return;
-    }
-
-    localStorage.setItem("mdpMedecin", nouveau);
-    alert("✔️ تم تغيير كلمة المرور بنجاح!");
-  });
-
 });
