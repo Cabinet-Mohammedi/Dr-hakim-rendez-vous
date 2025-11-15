@@ -78,9 +78,9 @@ document.addEventListener("DOMContentLoaded", () => {
           <td>${data.date}</td>
           <td>
             <button class="btn-check" data-id="${child.key}" style="background:green; color:white; margin-right:5px;">
-              ✅
+              ?
             </button>
-            <button class="btn-delete" data-id="${child.key}" style="background:red; color:white;">🗑️</button>
+            <button class="btn-delete" data-id="${child.key}" style="background:red; color:white;">???</button>
           </td>
         `;
         rdvTable.appendChild(tr);
@@ -88,7 +88,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       remainingSpan.textContent = remaining;
 
-      // === Bouton toggle "tem découverte" ===
+      // === Bouton toggle "tem de?couverte" ===
       document.querySelectorAll(".btn-check").forEach(btn => {
         btn.addEventListener("click", e => {
           const id = e.currentTarget.getAttribute("data-id");
@@ -111,28 +111,3 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 });
-
-  // === زر تغيير كلمة المرور ===
-  const btnChangePwd = document.getElementById("btnChangePwd");
-
-  btnChangePwd.addEventListener("click", () => {
-    const currentPwd = localStorage.getItem("mdpMedecin") || "docteur123";
-
-    const ancien = prompt("أدخل كلمة المرور الحالية:");
-    if (ancien !== currentPwd) {
-      alert("❌ كلمة المرور الحالية غير صحيحة");
-      return;
-    }
-
-    const nouveau = prompt("أدخل كلمة المرور الجديدة:");
-    if (!nouveau || nouveau.trim() === "") {
-      alert("❌ كلمة المرور الجديدة غير صالحة");
-      return;
-    }
-
-    localStorage.setItem("mdpMedecin", nouveau);
-    alert("✔️ تم تغيير كلمة المرور بنجاح!");
-  });
-
-});
-
