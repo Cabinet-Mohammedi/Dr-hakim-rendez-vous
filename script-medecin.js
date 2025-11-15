@@ -1,5 +1,6 @@
 document.addEventListener("DOMContentLoaded", () => {
-  // === Sélection des éléments ===
+
+  // Sélection des éléments
   const btnLogin = document.getElementById("btnLogin");
   const mdpInput = document.getElementById("mdpMedecin");
   const loginCard = document.getElementById("loginCard");
@@ -12,21 +13,22 @@ document.addEventListener("DOMContentLoaded", () => {
   const rdvTable = document.getElementById("rdvTable").querySelector("tbody");
   const remainingSpan = document.getElementById("remaining");
 
-  // === Initialisation Firebase ===
+  // Initialisation Firebase
   const app = firebase.initializeApp(firebaseConfig);
   const db = firebase.database();
 
-  // === Vérifier si mot de passe déjà sauvegardé ===
-  if (localStorage.getItem("mdpMedecin") === "docteur123") {
+  // Si déjà connecté
+  if (localStorage.getItem("loggedMedecin") === "true") {
     loginCard.style.display = "none";
     medContent.style.display = "block";
     afficherRendezVous();
   }
 
-  // === Connexion médecin ===
+  // Connexion médecin
   btnLogin.addEventListener("click", () => {
-    if (mdpInput.value.trim() === "docteur123") {
-      localStorage.setItem("mdpMedecin", "docteur123");
+    const savedPwd = localStorage.getItem("mdpMedecin") || "docteur123";
+    if (mdpInput.value.trim() === savedPwd) {
+      localStorage.setItem("loggedMedecin", "true");
       loginCard.style.display = "none";
       medContent.style.display = "block";
       afficherRendezVous();
@@ -35,12 +37,15 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // === Ajouter un rendez-vous ===
+  // Ajouter un rendez-vous
   btnAdd.addEventListener("click", () => {
     const nom = nomAdd.value.trim();
     const tel = telAdd.value.trim();
 
-    if (!nom || !tel) { alert("Veuillez remplir tous les champs !"); return; }
+    if (!nom || !tel) {
+      alert("Veuillez remplir tous les champs !");
+      return;
+    }
 
     const ref = db.ref("rendezvous");
     ref.once("value").then(snapshot => {
@@ -52,14 +57,16 @@ document.addEventListener("DOMContentLoaded", () => {
         date: new Date().toLocaleDateString("fr-FR"),
         checked: false
       });
+
       nomAdd.value = "";
       telAdd.value = "";
     });
   });
 
-  // === Afficher les rendez-vous ===
+  // Affichage des rendez-vous
   function afficherRendezVous() {
     const ref = db.ref("rendezvous");
+
     ref.on("value", snapshot => {
       rdvTable.innerHTML = "";
       let remaining = 0;
@@ -69,7 +76,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!data.checked) remaining++;
 
         const tr = document.createElement("tr");
-        tr.style.background = data.checked ? "#f28b82" : "white"; // أحمر فاتح عند تم الكشف
+        tr.style.background = data.checked ? "#f28b82" : "white";
 
         tr.innerHTML = `
           <td>${data.numero}</td>
@@ -77,18 +84,17 @@ document.addEventListener("DOMContentLoaded", () => {
           <td>${data.tel}</td>
           <td>${data.date}</td>
           <td>
-            <button class="btn-check" data-id="${child.key}" style="background:green; color:white; margin-right:5px;">
-              ?
-            </button>
-            <button class="btn-delete" data-id="${child.key}" style="background:red; color:white;">???</button>
+            <button class="btn-check" data-id="${child.key}" style="background:green;color:white;margin-right:5px;">✔</button>
+            <button class="btn-delete" data-id="${child.key}" style="background:red;color:white;">🗑️</button>
           </td>
         `;
+
         rdvTable.appendChild(tr);
       });
 
       remainingSpan.textContent = remaining;
 
-      // === Bouton toggle "tem de?couverte" ===
+      // Toggle check
       document.querySelectorAll(".btn-check").forEach(btn => {
         btn.addEventListener("click", e => {
           const id = e.currentTarget.getAttribute("data-id");
@@ -96,12 +102,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
           refPatient.once("value").then(snap => {
             const current = snap.val().checked;
-            refPatient.update({ checked: !current }); // تبديل بين true و false
+            refPatient.update({ checked: !current });
           });
         });
       });
 
-      // === Bouton supprimer ===
+      // Delete
       document.querySelectorAll(".btn-delete").forEach(btn => {
         btn.addEventListener("click", e => {
           const id = e.currentTarget.getAttribute("data-id");
@@ -110,6 +116,7 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     });
   }
+
   // Changer mot de passe
   const btnChangePwd = document.getElementById("btnChangePwd");
 
